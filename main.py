@@ -13,6 +13,8 @@ CLIENT_BP_URL = "https://clientbp.ggblueshark.com"
 REGION_MODE = "bd"
 login_url, ob, version = AuToUpDaTE()
 online_writer = None
+whisper_writer = None
+auto_grind_task = None
 
 Hr = {
     'User-Agent': Uaa(),
@@ -111,14 +113,7 @@ async def xAuThSTarTuP(TarGeT, token, timestamp, key, iv):
     return f"0115{headers}{uid_hex}{encrypted_timestamp}00000{encrypted_packet_length}{encrypted_packet}"
 
 async def create_simple_start_packet(key, iv, region):
-    fields = {
-        1: 214,
-        2: {
-            1: 1,
-            2: 6,
-            4: int(time.time())
-        }
-    }
+    fields = {1: 214, 2: {1: 1, 2: 6, 4: int(time.time())}}
     packet = await CrEaTe_ProTo(fields)
     pkt_type = '0519' if region.lower() == "bd" else '0514'
     return await GeneRaTePk(packet.hex(), pkt_type, key, iv)
@@ -137,80 +132,83 @@ async def start_the_grind(key, iv, region):
     print(f"[ INFO ] BOT STARTING GRIND")
     while True:
         try:
-            print(f"[ INFO ] PREPARING SQUAD LOBBY")
             p1 = await OpEnSq(key, iv, region)
-            if online_writer:
-                online_writer.write(p1)
-                await online_writer.drain()
+            if online_writer: online_writer.write(p1); await online_writer.drain()
             await asyncio.sleep(3)
-
-            print(f"[ INFO ] SENDING START MATCH PACKET")
             p_start = await create_simple_start_packet(key, iv, region)
-            if online_writer:
-                online_writer.write(p_start)
-                await online_writer.drain()
-            
-            print(f"[ INFO ] WAITING FOR LOADING SCREEN (15S)")
+            if online_writer: online_writer.write(p_start); await online_writer.drain()
             await asyncio.sleep(15) 
-
-            print(f"[ INFO ] MATCH RUNNING: MAJU + HOMER SPAM")
             match_end = time.time() + 180
             while time.time() < match_end:
                 move = await send_move_forward(key, iv, region)
-                if online_writer:
-                    online_writer.write(move)
-                    await online_writer.drain()
-                
+                if online_writer: online_writer.write(move); await online_writer.drain()
                 if int(time.time()) % 6 == 0:
                     homer = await use_homer_skill(key, iv, region)
-                    if online_writer:
-                        online_writer.write(homer)
-                        await online_writer.drain()
+                    if online_writer: online_writer.write(homer); await online_writer.drain()
                 await asyncio.sleep(1.5)
-
-            print(f"[ INFO ] MATCH FINISHED: LEAVING SQUAD")
             p3 = await leave_squad_packet(key, iv, region)
-            if online_writer:
-                online_writer.write(p3)
-                await online_writer.drain()
+            if online_writer: online_writer.write(p3); await online_writer.drain()
             await asyncio.sleep(5)
         except Exception as e:
             print(f"[ ERROR ] {e}")
             await asyncio.sleep(10)
 
+async def TcPChaT(ip, port, auth_token, key, iv, region):
+    global whisper_writer, auto_grind_task
+    while True:
+        try:
+            reader, writer = await asyncio.open_connection(ip, int(port))
+            whisper_writer = writer
+            writer.write(bytes.fromhex(auth_token))
+            await writer.drain()
+            while True:
+                data = await reader.read(9999)
+                if not data: break
+                if data.hex().startswith("120000"):
+                    try:
+                        packet = bytes.fromhex(data.hex()[10:])
+                        proto = DEcwHisPErMsG_pb2.DecodeWhisper()
+                        proto.ParseFromString(packet)
+                        msg = proto.Data.msg.strip().lower()
+                        uid = proto.Data.uid
+                        if msg == "/start":
+                            if auto_grind_task is None or auto_grind_task.done():
+                                auto_grind_task = asyncio.create_task(start_the_grind(key, iv, region))
+                                print(f"[ INFO ] MANUAL START BY {uid}")
+                            else:
+                                print(f"[ INFO ] GRIND ALREADY RUNNING")
+                    except: pass
+        except: await asyncio.sleep(5)
+
 async def MaiiiinE():
-    global online_writer
+    global online_writer, auto_grind_task
     print(f"[ INFO ] BOT INITIALIZING")
     with open("bot.txt", "r") as f:
         creds = json.load(f)
     uid, password = list(creds.items())[0]
 
     async with aiohttp.ClientSession() as session:
-        print(f"[ INFO ] AUTHORIZING GARENA ACCOUNT")
         url_auth = "https://100067.connect.garena.com/oauth/guest/token/grant"
         auth_data = {"uid": uid, "password": password, "response_type": "token", "client_type": "2", "client_secret": "2ee44819e9b4598845141067b281621874d0d5d7af9d8f7e00c1e54715b7d1e3", "client_id": "100067"}
         async with session.post(url_auth, data=auth_data) as resp:
             token_json = await resp.json()
             open_id, access_token = token_json.get("open_id"), token_json.get("access_token")
 
-        print(f"[ INFO ] ENCRYPTING MAJOR LOGIN PAYLOAD")
         payload = await EncRypTMajoRLoGin(open_id, access_token)
         ssl_ctx = ssl.create_default_context()
-        ssl_ctx.check_hostname = False
-        ssl_ctx.verify_mode = ssl.CERT_NONE
+        ssl_ctx.check_hostname = False; ssl_ctx.verify_mode = ssl.CERT_NONE
 
         async with session.post(f"{login_url}MajorLogin", data=payload, headers=Hr, ssl=ssl_ctx) as resp:
             auth_res = MajoRLoGinrEs_pb2.MajorLoginRes()
             auth_res.ParseFromString(await resp.read())
 
-        print(f"[ INFO ] RETRIEVING SERVER PORTS VIA CLIENTBP")
         Hr['Authorization'] = f"Bearer {auth_res.token}"
         async with session.post(f"{CLIENT_BP_URL}/GetLoginData", data=payload, headers=Hr, ssl=ssl_ctx) as resp:
             ports_res = PorTs_pb2.GetLoginData()
             ports_res.ParseFromString(await resp.read())
 
-    print(f"[ INFO ] BOT CONNECTING TO SERVER")
     online_ip, online_port = ports_res.Online_IP_Port.split(":")
+    chat_ip, chat_port = ports_res.AccountIP_Port.split(":")
     auth_token = await xAuThSTarTuP(int(auth_res.account_uid), auth_res.token, int(auth_res.timestamp), auth_res.key, auth_res.iv)
 
     reader, writer = await asyncio.open_connection(online_ip, int(online_port))
@@ -219,8 +217,11 @@ async def MaiiiinE():
     await writer.drain()
     
     print(f"[ INFO ] BOT LOGIN SUCCESSFUL UID: {auth_res.account_uid}")
+    asyncio.create_task(TcPChaT(chat_ip, chat_port, auth_token, auth_res.key, auth_res.iv, REGION_MODE))
+    
     await asyncio.sleep(2)
-    await start_the_grind(auth_res.key, auth_res.iv, REGION_MODE)
+    auto_grind_task = asyncio.create_task(start_the_grind(auth_res.key, auth_res.iv, REGION_MODE))
+    await asyncio.gather(auto_grind_task)
 
 if __name__ == '__main__':
     asyncio.run(MaiiiinE())
