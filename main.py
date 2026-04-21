@@ -11,6 +11,7 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 CLIENT_BP_URL = "https://clientbp.ggblueshark.com"
 REGION_MODE = "bd"
+TARGET_INVITE_ID = 15444555566 # ID Target Invite
 login_url, ob, version = AuToUpDaTE()
 online_writer = None
 whisper_writer = None
@@ -132,12 +133,21 @@ async def start_the_grind(key, iv, region):
     print(f"[ INFO ] BOT STARTING GRIND")
     while True:
         try:
-            p1 = await OpEnSq(key, iv, region)
-            if online_writer: online_writer.write(p1); await online_writer.drain()
-            await asyncio.sleep(3)
+            print(f"[ INFO ] AUTO CREATING SQUAD & INVITING {TARGET_INVITE_ID}")
+            p_open = await OpEnSq(key, iv, region)
+            if online_writer: online_writer.write(p_open); await online_writer.drain()
+            await asyncio.sleep(1)
+
+            # Auto Invite ke Target ID
+            p_inv = await SEnd_InV(5, TARGET_INVITE_ID, key, iv, region)
+            if online_writer: online_writer.write(p_inv); await online_writer.drain()
+            await asyncio.sleep(2)
+
+            print(f"[ INFO ] SENDING START MATCH PACKET")
             p_start = await create_simple_start_packet(key, iv, region)
             if online_writer: online_writer.write(p_start); await online_writer.drain()
             await asyncio.sleep(15) 
+
             match_end = time.time() + 180
             while time.time() < match_end:
                 move = await send_move_forward(key, iv, region)
@@ -146,8 +156,9 @@ async def start_the_grind(key, iv, region):
                     homer = await use_homer_skill(key, iv, region)
                     if online_writer: online_writer.write(homer); await online_writer.drain()
                 await asyncio.sleep(1.5)
-            p3 = await leave_squad_packet(key, iv, region)
-            if online_writer: online_writer.write(p3); await online_writer.drain()
+
+            p_leave = await leave_squad_packet(key, iv, region)
+            if online_writer: online_writer.write(p_leave); await online_writer.drain()
             await asyncio.sleep(5)
         except Exception as e:
             print(f"[ ERROR ] {e}")
@@ -170,13 +181,10 @@ async def TcPChaT(ip, port, auth_token, key, iv, region):
                         proto = DEcwHisPErMsG_pb2.DecodeWhisper()
                         proto.ParseFromString(packet)
                         msg = proto.Data.msg.strip().lower()
-                        uid = proto.Data.uid
                         if msg == "/start":
                             if auto_grind_task is None or auto_grind_task.done():
                                 auto_grind_task = asyncio.create_task(start_the_grind(key, iv, region))
-                                print(f"[ INFO ] MANUAL START BY {uid}")
-                            else:
-                                print(f"[ INFO ] GRIND ALREADY RUNNING")
+                                print(f"[ INFO ] MANUAL START TRIGGERED")
                     except: pass
         except: await asyncio.sleep(5)
 
