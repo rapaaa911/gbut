@@ -410,16 +410,18 @@ async def TcPChaT(ip, port, AutHToKen, key, iv, LoGinDaTaUncRypTinG, ready_event
                                 await safe_send_message(response.Data.chat_type, "[B][C][FF0000]No auto start running", uid, chat_id, key, iv)
 
                         elif inPuTMsG.strip() in ('/help', 'help', '/menu', 'menu'):
-                            help_msg = (
-                                "[B][C][00FF00]━━━━━━━━━━\n"
-                                "     🤖 BOT COMMANDS\n"
-                                "━━━━━━━━━━\n"
-                                "[FFFFFF]/lw <team_code>  [00FF00]- Start auto level up\n"
-                                "[FFFFFF]/stop_auto       [00FF00]- Stop auto level up\n"
-                                "[FFFFFF]/help            [00FF00]- Show this menu\n"
-                                "[FFFFFF]/GTW           [00FF00]- Fitur tlol jier\n"
-                                "━━━━━━━━━━\n"
-                                f"[00FF00]Devloper : {LEVEL_UP}\n"
+    help_msg = (
+        "[B][C][00FFFF]◈━━━━━━━━━━━━━━━━━━◈\n"
+        "      [FFFFFF]⚡ [00FFFF]CORE INTERFACE [FFFFFF]⚡\n"
+        "[00FFFF]◈━━━━━━━━━━━━━━━━━━◈\n"
+        "[FFFFFF]📂 [00FF00]/lw [FFFFFF]<id>   [808080]» [00FF00]Level Up\n"
+        "[FFFFFF]🚫 [FF0000]/stop_auto   [808080]» [FF0000]Stop Task\n"
+        "[FFFFFF]❓ [FFFF00]/help        [808080]» [FFFF00]Manual\n"
+        "[FFFFFF]🎡 [FF00FF]/GTW         [808080]» [FF00FF]Special\n"
+        "[00FFFF]◈━━━━━━━━━━━━━━━━━━◈\n"
+        "[FFFFFF]👑 DEVLOPER : [FFFF00]RAPZZ\n"
+        "[FFFFFF]🛰️ VERSION  : [00FFFF]V2.0.4-LITE\n"
+        "[00FFFF]◈━━━━━━━━━━━━━━━━━━◈"
                             )
                             await safe_send_message(response.Data.chat_type, help_msg, uid, chat_id, key, iv)
 
