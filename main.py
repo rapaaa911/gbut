@@ -134,21 +134,26 @@ async def use_homer_skill(key, iv, region):
     return await GeneRaTePk((await CrEaTe_ProTo(fields)).hex(), pkt_type, key, iv)
 
 async def start_the_grind(key, iv, region):
+    print(f"[ INFO ] BOT STARTING GRIND")
     while True:
         try:
+            print(f"[ INFO ] PREPARING SQUAD LOBBY")
             p1 = await OpEnSq(key, iv, region)
             if online_writer:
                 online_writer.write(p1)
                 await online_writer.drain()
             await asyncio.sleep(3)
 
+            print(f"[ INFO ] SENDING START MATCH PACKET")
             p_start = await create_simple_start_packet(key, iv, region)
             if online_writer:
                 online_writer.write(p_start)
                 await online_writer.drain()
             
+            print(f"[ INFO ] WAITING FOR LOADING SCREEN (15S)")
             await asyncio.sleep(15) 
 
+            print(f"[ INFO ] MATCH RUNNING: MAJU + HOMER SPAM")
             match_end = time.time() + 180
             while time.time() < match_end:
                 move = await send_move_forward(key, iv, region)
@@ -163,27 +168,32 @@ async def start_the_grind(key, iv, region):
                         await online_writer.drain()
                 await asyncio.sleep(1.5)
 
+            print(f"[ INFO ] MATCH FINISHED: LEAVING SQUAD")
             p3 = await leave_squad_packet(key, iv, region)
             if online_writer:
                 online_writer.write(p3)
                 await online_writer.drain()
             await asyncio.sleep(5)
-        except:
+        except Exception as e:
+            print(f"[ ERROR ] {e}")
             await asyncio.sleep(10)
 
 async def MaiiiinE():
     global online_writer
+    print(f"[ INFO ] BOT INITIALIZING")
     with open("bot.txt", "r") as f:
         creds = json.load(f)
     uid, password = list(creds.items())[0]
 
     async with aiohttp.ClientSession() as session:
+        print(f"[ INFO ] AUTHORIZING GARENA ACCOUNT")
         url_auth = "https://100067.connect.garena.com/oauth/guest/token/grant"
         auth_data = {"uid": uid, "password": password, "response_type": "token", "client_type": "2", "client_secret": "2ee44819e9b4598845141067b281621874d0d5d7af9d8f7e00c1e54715b7d1e3", "client_id": "100067"}
         async with session.post(url_auth, data=auth_data) as resp:
             token_json = await resp.json()
             open_id, access_token = token_json.get("open_id"), token_json.get("access_token")
 
+        print(f"[ INFO ] ENCRYPTING MAJOR LOGIN PAYLOAD")
         payload = await EncRypTMajoRLoGin(open_id, access_token)
         ssl_ctx = ssl.create_default_context()
         ssl_ctx.check_hostname = False
@@ -193,11 +203,13 @@ async def MaiiiinE():
             auth_res = MajoRLoGinrEs_pb2.MajorLoginRes()
             auth_res.ParseFromString(await resp.read())
 
+        print(f"[ INFO ] RETRIEVING SERVER PORTS VIA CLIENTBP")
         Hr['Authorization'] = f"Bearer {auth_res.token}"
         async with session.post(f"{CLIENT_BP_URL}/GetLoginData", data=payload, headers=Hr, ssl=ssl_ctx) as resp:
             ports_res = PorTs_pb2.GetLoginData()
             ports_res.ParseFromString(await resp.read())
 
+    print(f"[ INFO ] BOT CONNECTING TO SERVER")
     online_ip, online_port = ports_res.Online_IP_Port.split(":")
     auth_token = await xAuThSTarTuP(int(auth_res.account_uid), auth_res.token, int(auth_res.timestamp), auth_res.key, auth_res.iv)
 
@@ -206,6 +218,7 @@ async def MaiiiinE():
     writer.write(bytes.fromhex(auth_token))
     await writer.drain()
     
+    print(f"[ INFO ] BOT LOGIN SUCCESSFUL UID: {auth_res.account_uid}")
     await asyncio.sleep(2)
     await start_the_grind(auth_res.key, auth_res.iv, REGION_MODE)
 
