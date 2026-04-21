@@ -401,7 +401,47 @@ async def TcPChaT(ip, port, AutHToKen, key, iv, LoGinDaTaUncRypTinG, ready_event
                             for _ in range(2): 
                                 await safe_send_message(response.Data.chat_type, "[B][C][FF0000]lu siape mpruy", uid, chat_id, key, iv)
                                 await asyncio.sleep(0.3) # Jeda dikit biar gak limit
-                            
+                                
+                        elif inPuTMsG.startswith('/info '):
+                            try:
+                                parts = inPuTMsG.strip().split()
+                                if len(parts) < 2:
+                                    await safe_send_message(response.Data.chat_type, "[B][C][FF0000]Format Salah! Contoh: /info 12345678", uid, chat_id, key, iv)
+                                    continue
+                                
+                                target_uid = parts[1]
+                                # Panggil fungsi API yang lo punya
+                                player_data = get_player_personal_show(server_url, auth_token, int(target_uid))
+
+                                if player_data and 'playerPersonalShowInfo' in player_data:
+                                    info = player_data['playerPersonalShowInfo']
+                                    
+                                    # Parsing Data
+                                    nickname = info.get('nickname', 'Unknown')
+                                    level = info.get('level', '0')
+                                    exp = info.get('exp', '0')
+                                    likes = info.get('likeNum', '0')
+                                    bio = info.get('selfIntro', 'No Bio Set')
+                                    create_time = info.get('createTime', 'Unknown')
+                                    
+                                    info_msg = (
+                                        f"[B][C][00FFFF]◈━━━━━━━━━━━━━━━━━━◈\n"
+                                        f"       [FFFFFF]👤 [00FFFF][B]PLAYER DOSSIER[B] [FFFFFF]👤\n"
+                                        f"[00FFFF]◈━━━━━━━━━━━━━━━━━━◈\n"
+                                        f"[FFFFFF]🏷️ NICKNAME : [00FF00]{nickname}\n"
+                                        f"[FFFFFF]🆔 ID       : [FFFF00]{target_uid}\n"
+                                        f"[FFFFFF]📊 LEVEL    : [00FFFF]{level} [808080]({exp} XP)\n"
+                                        f"[FFFFFF]❤️ LIKES    : [FF00FF]{likes}\n"
+                                        f"[FFFFFF]📅 CREATED  : [FFFFFF]{create_time}\n"
+                                        f"[00FFFF]────────────────────\n"
+                                        f"[FFFFFF]📝 [B]BIO:[B]\n"
+                                        f"[808080]\"{bio}\"\n"
+                                        f"[00FFFF]◈━━━━━━━━━━━━━━━━━━◈"
+                                    )
+                                    await safe_send_message(response.Data.chat_type, info_msg, uid, chat_id, key, iv)
+                                else:
+                                    await safe_send_message(response.Data.chat_type, "[B][C][FF0000]Data tidak ditemukan / UID salah!", uid, chat_id, key, iv)
+                                    
                         elif inPuTMsG.strip() == '/stop_auto':
                             if auto_start_running:
                                 await stop_auto_loop()
