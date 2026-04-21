@@ -1,69 +1,20 @@
-#ONLY ONE THE KING OF COMMITTIY : DEVIL
-#INSTAGRAM : @NAJMI_FF_EXPERIMENT
-#YOUTUBE : @NAJMI_FF_EXPERIMENT
-#TELEGRAM : @najmi_ff_experimentv2
-#WARNINNG ALERT : YE CODE KISI BHI GANDU DOST KO N BHEJE
-#WARNA WAH APANE AAP KO GANDU SAMAJHNE LGEGA 😂
-
 import requests, os, json, binascii, time, urllib3, base64, datetime, re, socket, ssl, asyncio, aiohttp, random, traceback
 from protobuf_decoder.protobuf_decoder import Parser
 from xDL import *
 from autoup import *
 from datetime import datetime
-from concurrent.futures import ThreadPoolExecutor
 from Pb2 import DEcwHisPErMsG_pb2, MajoRLoGinrEs_pb2, PorTs_pb2, MajoRLoGinrEq_pb2
-import google.protobuf.json_format as json_format
-
-def rot13(text):
-    result = ""
-    for c in text:
-        if 'a' <= c <= 'z':
-            result += chr((ord(c) - ord('a') + 13) % 26 + ord('a'))
-        elif 'A' <= c <= 'Z':
-            result += chr((ord(c) - ord('A') + 13) % 26 + ord('A'))
-        else:
-            result += c
-    return result
-
-LEVEL_UP = rot13("EXP7868NFE NJM")
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import pad
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-async def SEndPacKeT(ChaT, OnLinE, TypE, PacKeT):
-    if TypE == 'ChaT' and ChaT:
-        ChaT.write(PacKeT)
-        await ChaT.drain()
-    elif TypE == 'OnLine' and OnLinE:
-        OnLinE.write(PacKeT)
-        await OnLinE.drain()
-
-async def GeNeRaTeAccEss(uid, password):
-    url = "https://100067.connect.garena.com/oauth/guest/token/grant"
-    headers = {
-        "Host": "100067.connect.garena.com",
-        "User-Agent": await Ua(),
-        "Content-Type": "application/x-www-form-urlencoded",
-        "Accept-Encoding": "gzip, deflate, br",
-        "Connection": "close"
-    }
-    data = {
-        "uid": uid,
-        "password": password,
-        "response_type": "token",
-        "client_type": "2",
-        "client_secret": "2ee44819e9b4598845141067b281621874d0d5d7af9d8f7e00c1e54715b7d1e3",
-        "client_id": "100067"
-    }
-    async with aiohttp.ClientSession() as session:
-        async with session.post(url, headers=headers, data=data) as response:
-            if response.status == 200:
-                data = await response.json()
-                return data.get("open_id"), data.get("access_token")
-            return None, None
-
+# --- GLOBAL CONFIG ---
 online_writer = None
-whisper_writer = None
 login_url, ob, version = AuToUpDaTE()
+# URL sesuai request lu
+CLIENT_BP_URL = "https://clientbp.ggblueshark.com"
+
 Hr = {
     'User-Agent': Uaa(),
     'Connection': "Keep-Alive",
@@ -74,16 +25,31 @@ Hr = {
     'X-GA': "v1 1",
     'ReleaseVersion': ob
 }
-CURRENT_BOT_UID = None
-region = 'IN'
 
+# --- PACKET GENERATORS ---
+async def send_move_forward(key, iv, region):
+    fields = {1: 15000, 2: 15000, 3: 1}
+    pkt_type = '0514' if region.lower() == "ind" else '0515'
+    return await GeneRaTePk((await CrEaTe_ProTo(fields)).hex(), pkt_type, key, iv)
+
+async def use_homer_skill(key, iv, region):
+    # Homer Item ID: 102000037
+    fields = {1: 102000037, 2: 1}
+    pkt_type = '0514' if region.lower() == "ind" else '0515'
+    return await GeneRaTePk((await CrEaTe_ProTo(fields)).hex(), pkt_type, key, iv)
+
+async def SEndPacKeT(OnLinE, PacKeT):
+    if OnLinE:
+        OnLinE.write(PacKeT)
+        await OnLinE.drain()
+
+# --- ENCRYPTION LOGIC ---
 async def encrypted_proto(encoded_hex):
     key = b'Yg&tc%DEuh6%Zc^8'
     iv = b'6oyZDr22E3ychjM%'
     cipher = AES.new(key, AES.MODE_CBC, iv)
     padded_message = pad(encoded_hex, AES.block_size)
-    encrypted_payload = cipher.encrypt(padded_message)
-    return encrypted_payload
+    return cipher.encrypt(padded_message)
 
 async def EncRypTMajoRLoGin(open_id, access_token):
     major_login = MajoRLoGinrEq_pb2.MajorLogin()
@@ -144,346 +110,94 @@ async def EncRypTMajoRLoGin(open_id, access_token):
     major_login.is_vpn = 1
     major_login.origin_platform_type = "4"
     major_login.primary_platform_type = "4"
+    
     string = major_login.SerializeToString()
     return await encrypted_proto(string)
 
-async def MajorLogin(payload):
-    url = f"{login_url}MajorLogin"
-    ssl_context = ssl.create_default_context()
-    ssl_context.check_hostname = False
-    ssl_context.verify_mode = ssl.CERT_NONE
-    async with aiohttp.ClientSession() as session:
-        async with session.post(url, data=payload, headers=Hr, ssl=ssl_context) as response:
-            if response.status == 200:
-                return await response.read()
-            return None
-
-async def GetLoginData(base_url, payload, token):
-    url = f"{base_url}/GetLoginData"
-    ssl_context = ssl.create_default_context()
-    ssl_context.check_hostname = False
-    ssl_context.verify_mode = ssl.CERT_NONE
-    Hr['Authorization'] = f"Bearer {token}"
-    async with aiohttp.ClientSession() as session:
-        async with session.post(url, data=payload, headers=Hr, ssl=ssl_context) as response:
-            if response.status == 200:
-                return await response.read()
-            return None
-
-async def DecRypTMajoRLoGin(data):
-    proto = MajoRLoGinrEs_pb2.MajorLoginRes()
-    proto.ParseFromString(data)
-    return proto
-
-async def DecRypTLoGinDaTa(data):
-    proto = PorTs_pb2.GetLoginData()
-    proto.ParseFromString(data)
-    return proto
-
-async def DecodeWhisperMessage(hex_packet):
-    packet = bytes.fromhex(hex_packet)
-    proto = DEcwHisPErMsG_pb2.DecodeWhisper()
-    proto.ParseFromString(packet)
-    return proto
-
-async def xAuThSTarTuP(TarGeT, token, timestamp, key, iv):
-    uid_hex = hex(TarGeT)[2:]
-    uid_length = len(uid_hex)
-    encrypted_timestamp = await DecodE_HeX(timestamp)
-    encrypted_account_token = token.encode().hex()
-    encrypted_packet = await EnC_PacKeT(encrypted_account_token, key, iv)
-    encrypted_packet_length = hex(len(encrypted_packet) // 2)[2:]
-    if uid_length == 9:
-        headers = '0000000'
-    elif uid_length == 8:
-        headers = '00000000'
-    elif uid_length == 10:
-        headers = '000000'
-    elif uid_length == 7:
-        headers = '000000000'
-    else:
-        headers = '0000000'
-    return f"0115{headers}{uid_hex}{encrypted_timestamp}00000{encrypted_packet_length}{encrypted_packet}"
-
-async def join_teamcode_packet(team_code, key, iv, region):
-    fields = {
-        1: 4,
-        2: {
-            4: bytes.fromhex("01090a0b121920"),
-            5: str(team_code),
-            6: 6,
-            8: 1,
-            9: {2: 800, 6: 11, 8: "1.111.1", 9: 5, 10: 1}
-        }
-    }
-    if region.lower() == "ind":
-        packet_type = '0514'
-    elif region.lower() == "bd":
-        packet_type = "0519"
-    else:
-        packet_type = "0515"
-    return await GeneRaTePk((await CrEaTe_ProTo(fields)).hex(), packet_type, key, iv)
-
-async def start_auto_packet(key, iv, region):
-    fields = {1: 9, 2: {1: 12480598706}}
-    if region.lower() == "ind":
-        packet_type = '0514'
-    elif region.lower() == "bd":
-        packet_type = "0519"
-    else:
-        packet_type = "0515"
-    return await GeneRaTePk((await CrEaTe_ProTo(fields)).hex(), packet_type, key, iv)
-
-async def leave_squad_packet(key, iv, region):
-    fields = {1: 7, 2: {1: 12480598706}}
-    if region.lower() == "ind":
-        packet_type = '0514'
-    elif region.lower() == "bd":
-        packet_type = "0519"
-    else:
-        packet_type = "0515"
-    return await GeneRaTePk((await CrEaTe_ProTo(fields)).hex(), packet_type, key, iv)
-
-auto_start_running = False
-stop_auto = False
-auto_start_task = None
-start_spam_duration = 18
-wait_after_match = 5
-start_spam_delay = 0.1
-
-async def auto_start_loop(team_code, uid, chat_id, chat_type, key, iv, region):
-    global auto_start_running, stop_auto
-    while not stop_auto:
+# --- GAMEPLAY LOOP ---
+async def start_the_grind(key, iv, region):
+    print("🚀 [SYSTEM] Auto Clash Squad Mode: ACTIVE")
+    while True:
         try:
-            join_pkt = await join_teamcode_packet(team_code, key, iv, region)
-            await SEndPacKeT(whisper_writer, online_writer, 'OnLine', join_pkt)
+            # 1. Bikin Lobby
+            p1 = await OpEnSq(key, iv, region)
+            await SEndPacKeT(online_writer, p1)
             await asyncio.sleep(2)
 
-            start_pkt = await start_auto_packet(key, iv, region)
-            end_time = time.time() + start_spam_duration
-            while time.time() < end_time and not stop_auto:
-                await SEndPacKeT(whisper_writer, online_writer, 'OnLine', start_pkt)
-                await asyncio.sleep(start_spam_delay)
+            # 2. Start CS
+            p2 = await start_auto_packet(key, iv, region)
+            await SEndPacKeT(online_writer, p2)
+            
+            # 3. Match Simulation (Maju + Homer)
+            match_timeout = time.time() + 180
+            while time.time() < match_timeout:
+                move = await send_move_forward(key, iv, region)
+                await SEndPacKeT(online_writer, move)
+                
+                if int(time.time()) % 5 == 0:
+                    homer = await use_homer_skill(key, iv, region)
+                    await SEndPacKeT(online_writer, homer)
+                await asyncio.sleep(1.3)
 
-            if stop_auto:
-                break
-
-            waited = 0
-            while waited < wait_after_match and not stop_auto:
-                await asyncio.sleep(1)
-                waited += 1
-            if stop_auto:
-                break
-
-            leave_pkt = await leave_squad_packet(key, iv, region)
-            await SEndPacKeT(whisper_writer, online_writer, 'OnLine', leave_pkt)
-            await asyncio.sleep(2)
-
-        except Exception as e:
-            print(f"[AUTO] Error: {e}")
-            break
-    auto_start_running = False
-    stop_auto = False
-
-async def stop_auto_loop():
-    global auto_start_running, stop_auto, auto_start_task
-    stop_auto = True
-    if auto_start_task and not auto_start_task.done():
-        auto_start_task.cancel()
-        try:
-            await auto_start_task
-        except asyncio.CancelledError:
-            pass
-    auto_start_running = False
-
-async def safe_send_message(chat_type, message, target_uid, chat_id, key, iv, max_retries=3):
-    for attempt in range(max_retries):
-        try:
-            P = await SEndMsG(chat_type, message, target_uid, chat_id, key, iv, region)
-            await SEndPacKeT(whisper_writer, online_writer, 'ChaT', P)
-            return True
-        except Exception:
-            if attempt < max_retries - 1:
-                await asyncio.sleep(0.5)
-    return False
-
-async def TcPOnLine(ip, port, jwt_token, bot_uid, key, iv, AutHToKen, reconnect_delay=0.5):
-    global online_writer
-    while True:
-        try:
-            reader, writer = await asyncio.open_connection(ip, int(port))
-            online_writer = writer
-            writer.write(bytes.fromhex(AutHToKen))
-            await writer.drain()
-            while True:
-                data = await reader.read(9999)
-                if not data:
-                    break
-            online_writer.close()
-            await online_writer.wait_closed()
-            online_writer = None
-        except Exception as e:
-            print(f"Online error: {e}")
-            if online_writer:
-                online_writer.close()
-                await online_writer.wait_closed()
-                online_writer = None
-        await asyncio.sleep(reconnect_delay)
-
-async def TcPChaT(ip, port, AutHToKen, key, iv, LoGinDaTaUncRypTinG, ready_event, region, reconnect_delay=0.5):
-    global whisper_writer, online_writer, auto_start_running, auto_start_task, stop_auto
-    while True:
-        try:
-            reader, writer = await asyncio.open_connection(ip, int(port))
-            whisper_writer = writer
-            writer.write(bytes.fromhex(AutHToKen))
-            await writer.drain()
-            ready_event.set()
-
-            if LoGinDaTaUncRypTinG.Clan_ID:
-                clan_id = LoGinDaTaUncRypTinG.Clan_ID
-                clan_compiled_data = LoGinDaTaUncRypTinG.Clan_Compiled_Data
-                pK = await AuthClan(clan_id, clan_compiled_data, key, iv)
-                if whisper_writer:
-                    writer.write(pK)
-                    await writer.drain()
-
-            while True:
-                data = await reader.read(9999)
-                if not data:
-                    break
-
-                if data.hex().startswith("120000"):
-                    try:
-                        response = await DecodeWhisperMessage(data.hex()[10:])
-                        uid = response.Data.uid
-                        chat_id = response.Data.Chat_ID
-                        inPuTMsG = response.Data.msg.strip().lower()
-                        print(f"Msg: {inPuTMsG} from {uid}")
-
-                        if inPuTMsG.startswith('/lw '):
-                            parts = inPuTMsG.strip().split()
-                            if len(parts) < 2:
-                                await safe_send_message(response.Data.chat_type, "[B][C][FF0000]Usage: /lw <team_code>", uid, chat_id, key, iv)
-                                continue
-                            team_code = parts[1]
-                            if not team_code.isdigit():
-                                await safe_send_message(response.Data.chat_type, "[B][C][FF0000]Team code must be numbers", uid, chat_id, key, iv)
-                                continue
-                            if auto_start_running:
-                                await safe_send_message(response.Data.chat_type, "[B][C][FF0000]Auto start already running. Use /stop_auto", uid, chat_id, key, iv)
-                                continue
-                            stop_auto = False
-                            auto_start_running = True
-                            await safe_send_message(response.Data.chat_type, f"[B][C][00FF00]Auto start started for team {team_code}\nUse /stop_auto to stop", uid, chat_id, key, iv)
-                            auto_start_task = asyncio.create_task(auto_start_loop(team_code, uid, chat_id, response.Data.chat_type, key, iv, region))
-
-                        elif inPuTMsG.strip() == '/stop_auto':
-                            if auto_start_running:
-                                await stop_auto_loop()
-                                await safe_send_message(response.Data.chat_type, "[B][C][00FF00]Auto start stopped", uid, chat_id, key, iv)
-                            else:
-                                await safe_send_message(response.Data.chat_type, "[B][C][FF0000]No auto start running", uid, chat_id, key, iv)
-
-                        elif inPuTMsG.strip() in ('/help', 'help', '/menu', 'menu'):
-                            help_msg = (
-                                "[B][C][00FF00]━━━━━━━━━━\n"
-                                "     🤖 BOT COMMANDS\n"
-                                "━━━━━━━━━━\n"
-                                "[FFFFFF]/lw <team_code>  [00FF00]- Start auto level up\n"
-                                "[FFFFFF]/stop_auto       [00FF00]- Stop auto level up\n"
-                                "[FFFFFF]/help            [00FF00]- Show this menu\n"
-                                "━━━━━━━━━━\n"
-                                f"[00FF00]Devloper : {LEVEL_UP}\n"
-                            )
-                            await safe_send_message(response.Data.chat_type, help_msg, uid, chat_id, key, iv)
-
-                    except Exception as e:
-                        print(f"Decode error: {e}")
-
-            whisper_writer.close()
-            await whisper_writer.wait_closed()
-            whisper_writer = None
-        except Exception as e:
-            print(f"Chat error: {e}")
-            if whisper_writer:
-                whisper_writer.close()
-                await whisper_writer.wait_closed()
-                whisper_writer = None
-        await asyncio.sleep(reconnect_delay)
-
-async def MaiiiinE():
-    global CURRENT_BOT_UID, region
-    if not os.path.exists("bot.txt"):
-        print("❌ bot.txt not found. Create it with {\"UID\": \"PASSWORD\"}")
-        return None
-    with open("bot.txt", "r") as f:
-        creds = json.load(f)
-    if not creds:
-        print("❌ bot.txt is empty or invalid JSON")
-        return None
-    uid, password = list(creds.items())[0]
-    print(f"📱 Logging in with UID: {uid}")
-
-    open_id, access_token = await GeNeRaTeAccEss(uid, password)
-    if not open_id:
-        print("❌ Failed to get open_id/access_token")
-        return None
-
-    payload = await EncRypTMajoRLoGin(open_id, access_token)
-    login_resp = await MajorLogin(payload)
-    if not login_resp:
-        print("❌ MajorLogin failed")
-        return None
-    auth = await DecRypTMajoRLoGin(login_resp)
-    token = auth.token
-    if not token:
-        print("❌ No token")
-        return None
-
-    token_data = {
-        "token": token,
-        "saved_at": time.time(),
-        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        "bot_uid": str(auth.account_uid),
-        "region": getattr(auth, 'region', 'IND')
-    }
-    with open("token.json", "w") as f:
-        json.dump(token_data, f, indent=2)
-
-    url = auth.url
-    region = getattr(auth, 'region', 'IND')
-    bot_uid = auth.account_uid
-    CURRENT_BOT_UID = str(bot_uid)
-    key = auth.key
-    iv = auth.iv
-    timestamp = auth.timestamp
-
-    login_data = await GetLoginData(url, payload, token)
-    if not login_data:
-        print("❌ GetLoginData failed")
-        return None
-    ports = await DecRypTLoGinDaTa(login_data)
-    online_ip, online_port = ports.Online_IP_Port.split(":")
-    chat_ip, chat_port = ports.AccountIP_Port.split(":")
-
-    auth_token = await xAuThSTarTuP(int(bot_uid), token, int(timestamp), key, iv)
-
-    ready = asyncio.Event()
-    task1 = asyncio.create_task(TcPChaT(chat_ip, chat_port, auth_token, key, iv, ports, ready, region))
-    task2 = asyncio.create_task(TcPOnLine(online_ip, online_port, token, bot_uid, key, iv, auth_token))
-
-    print("🤖 Bot online – only /lw, /stop_auto, /help")
-    await asyncio.gather(task1, task2)
-
-async def StarTinG():
-    while True:
-        try:
-            await MaiiiinE()
-        except Exception as e:
-            print(f"Restarting due to error: {e}")
-            traceback.print_exc()
+            # 4. Selesai Match
+            p3 = await leave_squad_packet(key, iv, region)
+            await SEndPacKeT(online_writer, p3)
+            await asyncio.sleep(5)
+        except:
             await asyncio.sleep(5)
 
+# --- MAIN ENGINE ---
+async def MaiiiinE():
+    global online_writer
+    if not os.path.exists("bot.txt"): return
+    
+    with open("bot.txt", "r") as f:
+        creds = json.load(f)
+    uid, password = list(creds.items())[0]
+
+    # Step 1: Oauth Access
+    url_auth = "https://100067.connect.garena.com/oauth/guest/token/grant"
+    auth_data = {"uid": uid, "password": password, "response_type": "token", "client_type": "2", "client_secret": "2ee44819e9b4598845141067b281621874d0d5d7af9d8f7e00c1e54715b7d1e3", "client_id": "100067"}
+    
+    async with aiohttp.ClientSession() as session:
+        async with session.post(url_auth, data=auth_data) as resp:
+            token_json = await resp.json()
+            open_id = token_json.get("open_id")
+            access_token = token_json.get("access_token")
+
+        if not open_id: return
+
+        # Step 2: Major Login
+        payload = await EncRypTMajoRLoGin(open_id, access_token)
+        ssl_ctx = ssl.create_default_context()
+        ssl_ctx.check_hostname = False
+        ssl_ctx.verify_mode = ssl.CERT_NONE
+        
+        async with session.post(f"{login_url}MajorLogin", data=payload, headers=Hr, ssl=ssl_ctx) as resp:
+            auth_res = MajoRLoGinrEs_pb2.MajorLoginRes()
+            auth_res.ParseFromString(await resp.read())
+
+        # Step 3: Get Login Data (FIX PAKE CLIENTBP)
+        Hr['Authorization'] = f"Bearer {auth_res.token}"
+        async with session.post(f"{CLIENT_BP_URL}/GetLoginData", data=payload, headers=Hr, ssl=ssl_ctx) as resp:
+            ports_res = PorTs_pb2.GetLoginData()
+            ports_res.ParseFromString(await resp.read())
+
+    # Connection
+    online_ip, online_port = ports_res.Online_IP_Port.split(":")
+    auth_token = await xAuThSTarTuP(int(auth_res.account_uid), auth_res.token, int(auth_res.timestamp), auth_res.key, auth_res.iv)
+
+    # TCP Online Only
+    reader, writer = await asyncio.open_connection(online_ip, int(online_port))
+    online_writer = writer
+    writer.write(bytes.fromhex(auth_token))
+    await writer.drain()
+    
+    print(f"✅ Login Success: {auth_res.account_uid}")
+    await asyncio.sleep(2)
+
+    # Start Loop
+    await start_the_grind(auth_res.key, auth_res.iv, getattr(auth_res, 'region', 'ID'))
+
 if __name__ == '__main__':
-    asyncio.run(StarTinG())
+    asyncio.run(MaiiiinE())
