@@ -380,7 +380,7 @@ async def TcPChaT(ip, port, AutHToKen, key, iv, LoGinDaTaUncRypTinG, ready_event
                             auto_start_running = True
                             await safe_send_message(response.Data.chat_type, f"[B][C][00FF00]Auto start started for team {team_code}\nUse /stop_auto to stop", uid, chat_id, key, iv)
                             auto_start_task = asyncio.create_task(auto_start_loop(team_code, uid, chat_id, response.Data.chat_type, key, iv, region))
-                                                elif inPuTMsG.strip() == '/jam':
+                        elif inPuTMsG.strip() == '/jam':
                             # Setting timezone
                             wib = datetime.now(pytz.timezone('Asia/Jakarta')).strftime("%H:%M:%S")
                             wita = datetime.now(pytz.timezone('Asia/Makassar')).strftime("%H:%M:%S")
