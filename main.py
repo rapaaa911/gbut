@@ -409,21 +409,21 @@ async def TcPChaT(ip, port, AutHToKen, key, iv, LoGinDaTaUncRypTinG, ready_event
                             else:
                                 await safe_send_message(response.Data.chat_type, "[B][C][FF0000]No auto start running", uid, chat_id, key, iv)
 
-        elif inPuTMsG.strip() in ('/help', 'help', '/menu', 'menu'):
-            help_msg = (
-                "[B][C][00FFFF]┌──────────────────┐\n"
-                "       [FFFFFF]🚀 [00FFFF][B]SYSTEM DASHBOARD[B] [FFFFFF]🚀\n"
-                "[00FFFF]└──────────────────┘\n"
-                "[FFFFFF]💠 [00FF00]/lw [FFFFFF]<id>  [808080]┈» [00FF00]LEVELING\n"
-                "[FFFFFF]💠 [FF0000]/stop_auto  [808080]┈» [FF0000]TERMINATE\n"
-                "[FFFFFF]💠 [FFFF00]/help       [808080]┈» [FFFF00]SUPPORT\n"
-                "[FFFFFF]💠 [FF00FF]/GTW        [808080]┈» [FF00FF]UNKNOWN\n"
-                "[00FFFF]────────────────────\n"
-                "[FFFFFF]👤 [B]OWNER  :[B] [FFFF00]RAPZZ\n"
-                "[FFFFFF]⚙️ [B]STATUS :[B] [00FF00]ONLINE\n"
-                "[00FFFF]────────────────────"
-            )
-
+                        elif inPuTMsG.strip() in ('/help', 'help', '/menu', 'menu'):
+                            help_msg = (
+                                "[B][C][00FFFF]◈━━━━━━━━━━━━━━━━━━◈\n"
+                                "       [FFFFFF]🚀 [00FFFF][B]RAPZZ PROJECT[B] [FFFFFF]🚀\n"
+                                "[00FFFF]◈━━━━━━━━━━━━━━━━━━◈\n"
+                                "[FFFFFF]💠 [00FF00]/lw [FFFFFF]<id>  [808080]┈» [00FF00]LEVELING\n"
+                                "[FFFFFF]💠 [FF0000]/stop_auto  [808080]┈» [FF0000]TERMINATE\n"
+                                "[FFFFFF]💠 [FFFF00]/help       [808080]┈» [FFFF00]SUPPORT\n"
+                                "[FFFFFF]💠 [FF00FF]/GTW        [808080]┈» [FF00FF]SPECIAL\n"
+                                "[FFFFFF]💠 [00FFFF]/jam        [808080]┈» [00FFFF]TIME\n"
+                                "[00FFFF]◈━━━━━━━━━━━━━━━━━━◈\n"
+                                "[FFFFFF]👤 [B]OWNER  :[B] [FFFF00]RAPZZ\n"
+                                "[FFFFFF]⚙️ [B]STATUS :[B] [00FF00]ACTIVE\n"
+                                "[00FFFF]◈━━━━━━━━━━━━━━━━━━◈"
+                            )
                             await safe_send_message(response.Data.chat_type, help_msg, uid, chat_id, key, iv)
 
                     except Exception as e:
