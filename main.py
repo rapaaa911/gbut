@@ -298,7 +298,57 @@ async def stop_auto_loop():
         except asyncio.CancelledError:
             pass
     auto_start_running = False
+async def get_player_personal_show(authorization, account_id, need_gallery_info=False, call_sign_src=7, need_blacklist=False, need_spark_info=False):
+    """
+    Get player personal show data from Free Fire API
+    """
+    url = f"clientbp.ggblueshark.com/GetPlayerPersonalShow"
 
+    try:
+        # Encoding payload ke Protobuf
+        encrypted_payload = encode_protobuf({
+            "accountId": int(account_id),
+            "callSignSrc": call_sign_src,
+            "needGalleryInfo": need_gallery_info,
+            "needBlacklist": need_blacklist,
+            "needSparkInfo": need_spark_info,
+        }, Proto.compiled.PlayerPersonalShow_pb2.request())
+
+        headers = {
+            "Host": "client.ind.freefiremobile.com",
+            "User-Agent": "UnityPlayer/2022.3.47f1 (UnityWebRequest/1.0, libcurl/8.5.0-DEV)",
+            "Accept": "*/*",
+            "Accept-Encoding": "deflate, gzip",
+            "Authorization": f"Bearer {authorization}",
+            "X-GA": "v1 1",
+            "ReleaseVersion": RELEASEVERSION,
+            "Content-Type": "application/x-www-form-urlencoded",
+            "X-Unity-Version": "2022.3.47f1"
+        }
+        
+        response = requests.post(url, data=encrypted_payload, headers=headers, timeout=10)
+        
+        if DEBUG:
+            print(f"[GetPlayerPersonalShow] ID: {account_id} - Status: {response.status_code}")
+
+        response.raise_for_status()
+        
+        if not response.content:
+            return None
+            
+        # Decode protobuf response
+        message = decode_protobuf(response.content, Proto.compiled.PlayerPersonalShow_pb2.response)
+        
+        # Convert ke dict/JSON
+        json_data = json.loads(json.dumps(message, default=str))
+        return json_data
+        
+    except requests.exceptions.RequestException as e:
+        print(f"[!] Request failed: {e}")
+        return None
+    except Exception as e:
+        print(f"[!] Error processing player info: {e}")
+        return None
 async def safe_send_message(chat_type, message, target_uid, chat_id, key, iv, max_retries=3):
     for attempt in range(max_retries):
         try:
