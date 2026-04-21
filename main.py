@@ -410,13 +410,10 @@ async def TcPChaT(ip, port, AutHToKen, key, iv, LoGinDaTaUncRypTinG, ready_event
                                     continue
                                 
                                 target_uid = parts[1]
-                                # Panggil fungsi API yang lo punya
                                 player_data = get_player_personal_show(server_url, auth_token, int(target_uid))
 
                                 if player_data and 'playerPersonalShowInfo' in player_data:
                                     info = player_data['playerPersonalShowInfo']
-                                    
-                                    # Parsing Data
                                     nickname = info.get('nickname', 'Unknown')
                                     level = info.get('level', '0')
                                     exp = info.get('exp', '0')
@@ -441,7 +438,9 @@ async def TcPChaT(ip, port, AutHToKen, key, iv, LoGinDaTaUncRypTinG, ready_event
                                     await safe_send_message(response.Data.chat_type, info_msg, uid, chat_id, key, iv)
                                 else:
                                     await safe_send_message(response.Data.chat_type, "[B][C][FF0000]Data tidak ditemukan / UID salah!", uid, chat_id, key, iv)
-                                    
+                            except Exception as e:
+                                await safe_send_message(response.Data.chat_type, f"[B][C][FF0000]Info Error: {str(e)}", uid, chat_id, key, iv)
+
                         elif inPuTMsG.strip() == '/stop_auto':
                             if auto_start_running:
                                 await stop_auto_loop()
