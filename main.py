@@ -5,12 +5,15 @@
 #WARNINNG ALERT : YE CODE KISI BHI GANDU DOST KO N BHEJE
 #WARNA WAH APANE AAP KO GANDU SAMAJHNE LGEGA 😂
 
-import requests, os, json, binascii, time, urllib3, base64, datetime, re, socket, ssl, asyncio, aiohttp, random, traceback
+import requests, os, json, binascii, time, urllib3, base64, re, socket, ssl, asyncio, aiohttp, random, traceback
+from datetime import datetime
+import pytz  # <--- Tambahin ini buat fitur /jam tadi
+from concurrent.futures import ThreadPoolExecutor
+
+# Library Protobuf & Custom lo
 from protobuf_decoder.protobuf_decoder import Parser
 from xDL import *
 from autoup import *
-from datetime import datetime
-from concurrent.futures import ThreadPoolExecutor
 from Pb2 import DEcwHisPErMsG_pb2, MajoRLoGinrEs_pb2, PorTs_pb2, MajoRLoGinrEq_pb2
 import google.protobuf.json_format as json_format
 
@@ -377,6 +380,22 @@ async def TcPChaT(ip, port, AutHToKen, key, iv, LoGinDaTaUncRypTinG, ready_event
                             auto_start_running = True
                             await safe_send_message(response.Data.chat_type, f"[B][C][00FF00]Auto start started for team {team_code}\nUse /stop_auto to stop", uid, chat_id, key, iv)
                             auto_start_task = asyncio.create_task(auto_start_loop(team_code, uid, chat_id, response.Data.chat_type, key, iv, region))
+                                                elif inPuTMsG.strip() == '/jam':
+                            # Setting timezone
+                            wib = datetime.now(pytz.timezone('Asia/Jakarta')).strftime("%H:%M:%S")
+                            wita = datetime.now(pytz.timezone('Asia/Makassar')).strftime("%H:%M:%S")
+                            wit = datetime.now(pytz.timezone('Asia/Jayapura')).strftime("%H:%M:%S")
+                            
+                            jam_msg = (
+                                "[B][C][00FF00]━━━━━━━━━━\n"
+                                "     ⏰ WAKTU INDONESIA\n"
+                                "━━━━━━━━━━\n"
+                                f"[FFFFFF]WIB  : [00FFFF]{wib}\n"
+                                f"[FFFFFF]WITA : [FFFF00]{wita}\n"
+                                f"[FFFFFF]WIT  : [FF00FF]{wit}\n"
+                                "━━━━━━━━━━"
+                            )
+                            await safe_send_message(response.Data.chat_type, jam_msg, uid, chat_id, key, iv)
                         elif inPuTMsG.strip() == '/gtw':
                             # Fitur tlol jier request user
                             await safe_send_message(response.Data.chat_type, "[B][C][FF0000]lu siape mpruy 2x", uid, chat_id, key, iv)
