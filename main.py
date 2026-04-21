@@ -397,8 +397,10 @@ async def TcPChaT(ip, port, AutHToKen, key, iv, LoGinDaTaUncRypTinG, ready_event
                             )
                             await safe_send_message(response.Data.chat_type, jam_msg, uid, chat_id, key, iv)
                         elif inPuTMsG.strip() == '/gtw':
-                            # Fitur tlol jier request user
-                            await safe_send_message(response.Data.chat_type, "[B][C][FF0000]lu siape mpruy 2x", uid, chat_id, key, iv)
+                            # Pakai loop biar nggak manual jier
+                            for _ in range(2): 
+                                await safe_send_message(response.Data.chat_type, "[B][C][FF0000]lu siape mpruy", uid, chat_id, key, iv)
+                                await asyncio.sleep(0.3) # Jeda dikit biar gak limit
                             
                         elif inPuTMsG.strip() == '/stop_auto':
                             if auto_start_running:
