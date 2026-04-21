@@ -460,7 +460,7 @@ async def TcPChaT(ip, port, AutHToKen, key, iv, LoGinDaTaUncRypTinG, ready_event
                                     continue
                                 
                                 target_uid = parts[1]
-                                player_data = get_player_personal_show(auth_token, int(target_uid))
+                                player_data = get_player_personal_show(AutHToKen, int(target_uid))
 
                                 if player_data and 'playerPersonalShowInfo' in player_data:
                                     info = player_data['playerPersonalShowInfo']
