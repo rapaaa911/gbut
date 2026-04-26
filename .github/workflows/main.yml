@@ -1,9 +1,13 @@
+name: CI
+on: push
+
 jobs:
-  debug-job:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4 # Gunakan v4 yang terbaru
 
-      # Masukkan ini di titik yang ingin kamu cek
-      - name: Mulai SSH Interaktif
-        run: curl -sSf https://sshx.io/get | sh && sshx
+      # ... step build kamu yang lain ...
+
+      - name: Open Remote Terminal
+        run: curl -sSf https://sshx.io/get | sh -s run
