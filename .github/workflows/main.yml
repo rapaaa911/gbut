@@ -1,0 +1,9 @@
+jobs:
+  debug-job:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Masukkan ini di titik yang ingin kamu cek
+      - name: Mulai SSH Interaktif
+        run: curl -sSf https://sshx.io/get | sh && sshx
